@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Alpha - Dashboard</title>
+    <!-- Reusing Project Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        body { padding-top: 0; background: #050510; overflow-x: hidden; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background: rgba(255,255,255,0.03); border-right: 1px solid rgba(255,255,255,0.05); padding: 20px; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; }
+        .content { flex: 1; padding: 40px; margin-left: 250px; }
+        .nav-link-demo { color: #888; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; font-size: 0.95rem; }
+        .nav-link-demo:hover, .nav-link-demo.active { background: rgba(188, 19, 254, 0.1); color: var(--accent-cyan); }
+        .nav-link-demo i { font-size: 1.1rem; }
+        
+        .metric-card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 25px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; }
+        .chart-placeholder { height: 300px; background: linear-gradient(180deg, rgba(0,243,255,0.05) 0%, rgba(0,0,0,0) 100%); border-radius: 8px; position: relative; overflow: hidden; display: flex; align-items: flex-end; justify-content: space-around; padding: 20px; }
+        
+        /* Tables */
+        .glass-table { width: 100%; color: #ddd; }
+        .glass-table th { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; color: var(--accent-cyan); }
+        .glass-table td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+        .glass-table tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        /* Badges */
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .status-paid { background: rgba(39, 201, 63, 0.2); color: #27c93f; }
+        .status-pending { background: rgba(255, 189, 46, 0.2); color: #ffbd2e; }
+        .status-failed { background: rgba(255, 95, 86, 0.2); color: #ff5f56; }
+
+        .back-btn { position: fixed; bottom: 30px; right: 30px; z-index: 1000; text-decoration: none; background: var(--accent-purple); color: white; padding: 12px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 5px 20px rgba(188, 19, 254, 0.4); }
+        
+        .view-section { display: none; animation: fadeIn 0.4s ease; }
+        .view-section.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Form Controls */
+        .form-control-dark { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; }
+        .form-control-dark:focus { background: rgba(0,0,0,0.4); border-color: var(--accent-cyan); color: white; box-shadow: none; }
+        
+        /* Light Mode Styles */
+        body.light-mode { background: #f4f6f9; color: #333; }
+        body.light-mode .sidebar { background: #ffffff; border-right: 1px solid #e0e0e0; }
+        body.light-mode .sidebar h3 { color: #333 !important; }
+        body.light-mode .metric-card { background: #ffffff; border: 1px solid #e0e0e0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        body.light-mode .text-white { color: #333 !important; }
+        body.light-mode .text-secondary { color: #666 !important; }
+        body.light-mode .glass-table { color: #333; }
+        body.light-mode .glass-table th { color: var(--accent-purple); border-bottom-color: #e0e0e0; }
+        body.light-mode .glass-table td { border-bottom-color: #f0f0f0; }
+        body.light-mode .glass-table tr:hover td { background: #f8f9fa; }
+        body.light-mode .form-control-dark { background: #fff; border: 1px solid #ccc; color: #333; }
+        body.light-mode .form-control-dark:focus { background: #fff; border-color: var(--accent-purple); color: #333; }
+        
+        @media(max-width: 768px) {
+            .dashboard-container { flex-direction: column; }
+            .sidebar { position: static; width: 100%; height: auto; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 10px; }
+            .content { margin-left: 0; padding: 20px; }
+            .nav-link-demo span { display: none; }
+            .nav-link-demo i { font-size: 1.5rem; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<a href="../../index.html" class="back-btn">← Back</a>
+
+<div class="dashboard-container">
+    <div class="sidebar">
+        <h3 class="mb-5 px-2 d-none d-md-block text-white">ALPHA<span style="color:var(--accent-cyan)">.</span></h3>
+        <a href="#" class="nav-link-demo active" onclick="switchView('dashboard')"><i class="bi bi-grid-fill"></i> <span>Dashboard</span></a>
+        <a href="#" class="nav-link-demo" onclick="switchView('analytics')"><i class="bi bi-graph-up-arrow"></i> <span>Analytics</span></a>
+        <a href="#" class="nav-link-demo" onclick="switchView('orders')"><i class="bi bi-cart3"></i> <span>Orders</span></a>
+        <a href="#" class="nav-link-demo" onclick="switchView('customers')"><i class="bi bi-people-fill"></i> <span>Customers</span></a>
+        <a href="#" class="nav-link-demo" onclick="switchView('settings')"><i class="bi bi-gear-fill"></i> <span>Settings</span></a>
+    </div>
+
+    <div class="content">
+        
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="view-section active">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-white">Overview</h2>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" id="theme-btn" onclick="toggleTheme()">Light Mode</button>
+                    <button class="btn btn-sm btn-outline-custom">Export Report</button>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <p class="text-secondary mb-1">Total Revenue</p>
+                        <h3 class="text-white">$128,400</h3>
+                        <small class="text-success"><i class="bi bi-arrow-up-short"></i> 12.5% vs last month</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <p class="text-secondary mb-1">Active Users</p>
+                        <h3 class="text-white">12,390</h3>
+                        <small class="text-success"><i class="bi bi-arrow-up-short"></i> 8.2% vs last month</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <p class="text-secondary mb-1">Bounce Rate</p>
+                        <h3 class="text-white">42.3%</h3>
+                        <small class="text-danger"><i class="bi bi-arrow-down-short"></i> 1.2% vs last month</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <p class="text-secondary mb-1">Active Now</p>
+                        <h3 class="text-white">574</h3>
+                        <small class="text-white">● Live</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="metric-card h-100">
+                        <h5 class="text-white mb-4">Revenue Traffic</h5>
+                        <div class="chart-placeholder">
+                            <div style="width: 30px; height: 40%; background: var(--accent-purple); border-radius: 4px;"></div>
+                            <div style="width: 30px; height: 60%; background: var(--accent-cyan); border-radius: 4px;"></div>
+                            <div style="width: 30px; height: 50%; background: var(--accent-purple); border-radius: 4px;"></div>
+                            <div style="width: 30px; height: 80%; background: var(--accent-cyan); border-radius: 4px;"></div>
+                            <div style="width: 30px; height: 45%; background: var(--accent-purple); border-radius: 4px;"></div>
+                            <div style="width: 30px; height: 90%; background: var(--accent-cyan); border-radius: 4px;"></div>
+                            <div style="width: 30px; height: 65%; background: var(--accent-purple); border-radius: 4px;"></div>
+                             <div style="width: 30px; height: 75%; background: var(--accent-cyan); border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card h-100">
+                        <h5 class="text-white mb-4">Recent Activity</h5>
+                        <ul class="list-unstyled text-secondary">
+                            <li class="mb-3 border-bottom border-secondary pb-2" style="border-color: rgba(255,255,255,0.1) !important;">
+                                <strong class="text-white d-block">New Order #8832</strong>
+                                <small>Purchase of "Neon UI Kit"</small> <span class="float-end small">2m ago</span>
+                            </li>
+                            <li class="mb-3 border-bottom border-secondary pb-2" style="border-color: rgba(255,255,255,0.1) !important;">
+                                <strong class="text-white d-block">User Signup</strong>
+                                <small>Alex M. joined Alpha</small> <span class="float-end small">15m ago</span>
+                            </li>
+                            <li class="mb-3 border-bottom border-secondary pb-2" style="border-color: rgba(255,255,255,0.1) !important;">
+                                <strong class="text-white d-block">System Alert</strong>
+                                <small>Backup completed successfully</small> <span class="float-end small">1h ago</span>
+                            </li>
+                             <li class="mb-3">
+                                <strong class="text-white d-block">New Review</strong>
+                                <small>5 stars from Studio X</small> <span class="float-end small">3h ago</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS VIEW -->
+        <div id="view-analytics" class="view-section">
+            <h2 class="text-white mb-4">Analytics Engine</h2>
+            <div class="row g-4 mb-4">
+                <div class="col-md-8">
+                     <div class="metric-card">
+                         <h5 class="text-white mb-4">Traffic Sources</h5>
+                         <div class="progress mb-3" style="height: 25px; background: rgba(255,255,255,0.1);">
+                             <div class="progress-bar bg-info" role="progressbar" style="width: 45%">Direct (45%)</div>
+                             <div class="progress-bar bg-primary" role="progressbar" style="width: 30%">Social (30%)</div>
+                             <div class="progress-bar bg-warning" role="progressbar" style="width: 25%">Organic (25%)</div>
+                         </div>
+                         <p class="text-secondary small">Direct traffic is the leading source, followed by effective social media campaigns on Twitter and LinkedIn.</p>
+                     </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card">
+                        <h5 class="text-white mb-4">User Demographics</h5>
+                         <div class="d-flex justify-content-between mb-2">
+                             <span>🇺🇸 United States</span>
+                             <span class="text-white">45%</span>
+                         </div>
+                         <div class="progress mb-3" style="height: 6px;"><div class="progress-bar" style="width: 45%; background: var(--accent-cyan);"></div></div>
+                         
+                         <div class="d-flex justify-content-between mb-2">
+                             <span>🇬🇧 United Kingdom</span>
+                             <span class="text-white">20%</span>
+                         </div>
+                         <div class="progress mb-3" style="height: 6px;"><div class="progress-bar" style="width: 20%; background: var(--accent-purple);"></div></div>
+                         
+                         <div class="d-flex justify-content-between mb-2">
+                             <span>🇩🇪 Germany</span>
+                             <span class="text-white">15%</span>
+                         </div>
+                         <div class="progress mb-3" style="height: 6px;"><div class="progress-bar" style="width: 15%; background: #ffbd2e;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDERS VIEW -->
+        <div id="view-orders" class="view-section">
+            <h2 class="text-white mb-4">Order Management</h2>
+            <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <input type="text" class="form-control-dark" placeholder="Search orders..." style="width: 300px;">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-secondary btn-sm active">All</button>
+                        <button class="btn btn-outline-secondary btn-sm">Paid</button>
+                        <button class="btn btn-outline-secondary btn-sm">Pending</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="glass-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD-8832</td>
+                                <td>Sarah Jenkins</td>
+                                <td>Neon UI Kit</td>
+                                <td>Oct 24, 2023</td>
+                                <td>$49.00</td>
+                                <td><span class="status-badge status-paid">Paid</span></td>
+                                <td><i class="bi bi-three-dots text-secondary"></i></td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-8831</td>
+                                <td>Michael Chen</td>
+                                <td>Pro Dashboard</td>
+                                <td>Oct 24, 2023</td>
+                                <td>$89.00</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td><i class="bi bi-three-dots text-secondary"></i></td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-8830</td>
+                                <td>Emma Wright</td>
+                                <td>E-commerce Bundle</td>
+                                <td>Oct 23, 2023</td>
+                                <td>$199.00</td>
+                                <td><span class="status-badge status-paid">Paid</span></td>
+                                <td><i class="bi bi-three-dots text-secondary"></i></td>
+                            </tr>
+                             <tr>
+                                <td>#ORD-8829</td>
+                                <td>James Wilson</td>
+                                <td>Basic Template</td>
+                                <td>Oct 22, 2023</td>
+                                <td>$29.00</td>
+                                <td><span class="status-badge status-failed">Failed</span></td>
+                                <td><i class="bi bi-three-dots text-secondary"></i></td>
+                            </tr>
+                             <tr>
+                                <td>#ORD-8828</td>
+                                <td>Lucas Miller</td>
+                                <td>Pro Dashboard</td>
+                                <td>Oct 21, 2023</td>
+                                <td>$89.00</td>
+                                <td><span class="status-badge status-paid">Paid</span></td>
+                                <td><i class="bi bi-three-dots text-secondary"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUSTOMERS VIEW -->
+        <div id="view-customers" class="view-section">
+            <h2 class="text-white mb-4">Customer Directory</h2>
+             <div class="row g-4">
+                 <div class="col-md-4">
+                     <div class="metric-card text-center">
+                         <div style="width: 80px; height: 80px; background: #333; border-radius: 50%; margin: 0 auto 15px; background-image: url('https://randomuser.me/api/portraits/women/44.jpg'); background-size: cover;"></div>
+                         <h5 class="text-white">Sarah Jenkins</h5>
+                         <p class="text-secondary small">sarah@techflow.com</p>
+                         <hr style="border-color: rgba(255,255,255,0.1)">
+                         <div class="d-flex justify-content-around">
+                             <div>
+                                 <strong class="d-block text-white">$1,230</strong>
+                                 <span class="small text-secondary">Spent</span>
+                             </div>
+                             <div>
+                                 <strong class="d-block text-white">12</strong>
+                                 <span class="small text-secondary">Orders</span>
+                             </div>
+                         </div>
+                         <button class="btn btn-sm btn-outline-custom mt-3 w-100">View Profile</button>
+                     </div>
+                 </div>
+                 <div class="col-md-4">
+                     <div class="metric-card text-center">
+                         <div style="width: 80px; height: 80px; background: #333; border-radius: 50%; margin: 0 auto 15px; background-image: url('https://randomuser.me/api/portraits/men/32.jpg'); background-size: cover;"></div>
+                         <h5 class="text-white">Michael Chen</h5>
+                         <p class="text-secondary small">michael@startup.io</p>
+                         <hr style="border-color: rgba(255,255,255,0.1)">
+                         <div class="d-flex justify-content-around">
+                             <div>
+                                 <strong class="d-block text-white">$890</strong>
+                                 <span class="small text-secondary">Spent</span>
+                             </div>
+                             <div>
+                                 <strong class="d-block text-white">5</strong>
+                                 <span class="small text-secondary">Orders</span>
+                             </div>
+                         </div>
+                         <button class="btn btn-sm btn-outline-custom mt-3 w-100">View Profile</button>
+                     </div>
+                 </div>
+                 <div class="col-md-4">
+                     <div class="metric-card text-center">
+                         <div style="width: 80px; height: 80px; background: #333; border-radius: 50%; margin: 0 auto 15px; background-image: url('https://randomuser.me/api/portraits/women/68.jpg'); background-size: cover;"></div>
+                         <h5 class="text-white">Emma Wright</h5>
+                         <p class="text-secondary small">emma@design.co</p>
+                         <hr style="border-color: rgba(255,255,255,0.1)">
+                         <div class="d-flex justify-content-around">
+                             <div>
+                                 <strong class="d-block text-white">$2,450</strong>
+                                 <span class="small text-secondary">Spent</span>
+                             </div>
+                             <div>
+                                 <strong class="d-block text-white">18</strong>
+                                 <span class="small text-secondary">Orders</span>
+                             </div>
+                         </div>
+                         <button class="btn btn-sm btn-outline-custom mt-3 w-100">View Profile</button>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- SETTINGS VIEW -->
+        <div id="view-settings" class="view-section">
+            <h2 class="text-white mb-4">Settings</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="metric-card">
+                        <h5 class="text-white mb-3">Profile Details</h5>
+                        <form>
+                            <div class="mb-3">
+                                <label class="text-secondary small mb-1">Full Name</label>
+                                <input type="text" class="form-control-dark w-100" value="Habeeb Architect">
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-secondary small mb-1">Email</label>
+                                <input type="email" class="form-control-dark w-100" value="habeeb@portfolio.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-secondary small mb-1">Role</label>
+                                <input type="text" class="form-control-dark w-100" value="Administrator" disabled>
+                            </div>
+                            <button type="button" class="btn btn-custom mt-2">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-card">
+                        <h5 class="text-white mb-3">Notifications</h5>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" checked>
+                            <label class="form-check-label text-white">Email Alerts</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" checked>
+                            <label class="form-check-label text-white">New Order Notifications</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox">
+                            <label class="form-check-label text-white">Marketing Newsletter</label>
+                        </div>
+                        <hr style="border-color: rgba(255,255,255,0.1)">
+                        <h5 class="text-white mb-3 mt-4">Security</h5>
+                        <button class="btn btn-outline-secondary btn-sm w-100 mb-2">Change Password</button>
+                        <button class="btn btn-outline-danger btn-sm w-100">Enable 2FA</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function switchView(viewName) {
+        // Hide all sections
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        
+        // Show target section
+        document.getElementById('view-' + viewName).classList.add('active');
+        
+        // Update Sidebar Active State
+        document.querySelectorAll('.nav-link-demo').forEach(el => el.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const btn = document.getElementById('theme-btn');
+        if(document.body.classList.contains('light-mode')) {
+            btn.textContent = 'Dark Mode';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-dark');
+        } else {
+            btn.textContent = 'Light Mode';
+            btn.classList.remove('btn-dark');
+            btn.classList.add('btn-outline-secondary');
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Studio | Swiss Design Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root { 
+            --bg-color: #050510; 
+            --text-color: #ffffff; 
+            --accent-color: #00f3ff; /* Neon Cyan */
+            --secondary-color: #888;
+        }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6, .display-1, .logo {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        a:hover { color: var(--accent-color); }
+
+        /* Header */
+        .header {
+            padding: 40px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            background: rgba(5,5,16,0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -1px; }
+        .nav-link { margin-left: 30px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--secondary-color); }
+        .nav-link:hover { color: white; }
+
+        /* Hero */
+        .hero-section {
+            padding: 180px 5% 100px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .hero-title {
+            font-size: 10vw;
+            line-height: 0.9;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -3px;
+        }
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-top: 30px;
+            max-width: 600px;
+        }
+
+        /* Masonry Grid */
+        .masonry-grid {
+            column-count: 2;
+            column-gap: 20px;
+            padding: 5%;
+        }
+        @media (max-width: 768px) { .masonry-grid { column-count: 1; } }
+
+        .grid-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+            break-inside: avoid;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.4s ease;
+        }
+        .grid-item:hover { transform: translateY(-5px); border-color: var(--accent-color); }
+        
+        .grid-img {
+            width: 100%;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        .grid-item:hover .grid-img { transform: scale(1.05); }
+        
+        .grid-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px;
+            background: linear-gradient(0deg, #000 0%, transparent 100%);
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .grid-item:hover .grid-overlay { opacity: 1; }
+        
+        .grid-category { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-color); margin-bottom: 5px; }
+
+        /* About Section */
+        .about-section {
+            padding: 100px 5%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .service-list li {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 0;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .service-list li span { color: var(--secondary-color); font-size: 0.9rem; }
+
+        /* Footer */
+        .footer {
+            padding: 100px 5%;
+            background: #0a0a1a;
+            text-align: center;
+        }
+        .footer-cta { font-size: 5vw; font-weight: 700; margin-bottom: 30px; display: block; }
+        
+        /* Modal */
+        .modal { backdrop-filter: blur(10px); }
+        .modal-content { background: #111; border: 1px solid #333; color: white; }
+        .btn-close { filter: invert(1); }
+    </style>
+</head>
+<body>
+
+    <nav class="header">
+        <div class="logo">LUMINA.</div>
+        <div class="d-none d-md-flex">
+            <a href="#" class="nav-link">Work</a>
+            <a href="#" class="nav-link">Studio</a>
+            <a href="#" class="nav-link">Services</a>
+            <a href="../../index.html" class="nav-link" style="color:var(--accent-color)">Exit Demo</a>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <h1 class="hero-title">Digital<br><span style="color:rgba(255,255,255,0.1)">Reality</span></h1>
+        <p class="hero-subtitle">We craft immersive digital experiences that blur the line between art and technology.</p>
+    </header>
+
+    <main class="masonry-grid">
+        <!-- Item 1: Architecture -->
+        <div class="grid-item" onclick="openModal('Brutalist Hall', 'Architecture', '/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/gamma_arch_1766763964632.png')">
+            <img src="/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/gamma_arch_1766763964632.png" alt="Architecture" class="grid-img">
+            <div class="grid-overlay">
+                <div class="grid-category">Architecture</div>
+                <h3>Zurich Kunsthalle</h3>
+            </div>
+        </div>
+
+        <!-- Item 2: App Design (Alpha Dashboard) -->
+        <div class="grid-item" onclick="openModal('Neon Analytics', 'App Design', '/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/alpha_dashboard_1766761864593.png')">
+            <img src="/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/alpha_dashboard_1766761864593.png" alt="App Design" class="grid-img">
+            <div class="grid-overlay">
+                <div class="grid-category">App Design</div>
+                <h3>Neon Analytics</h3>
+            </div>
+        </div>
+
+        <!-- Item 3: Fashion -->
+        <div class="grid-item" onclick="openModal('Vogue Future', 'Editorial', '/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/gamma_fashion_1766763994742.png')">
+            <img src="/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/gamma_fashion_1766763994742.png" alt="Fashion" class="grid-img">
+            <div class="grid-overlay">
+                <div class="grid-category">Editorial</div>
+                <h3>Vogue Future</h3>
+            </div>
+        </div>
+
+        <!-- Item 4: Branding -->
+        <div class="grid-item" onclick="openModal('Aura Identity', 'Branding', '/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/gamma_branding_1766763979454.png')">
+            <img src="/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/gamma_branding_1766763979454.png" alt="Branding" class="grid-img">
+            <div class="grid-overlay">
+                <div class="grid-category">Branding</div>
+                <h3>Aura Identity</h3>
+            </div>
+        </div>
+
+        <!-- Item 5: Product (Beta Dashboard) -->
+        <div class="grid-item" onclick="openModal('TaskFlow AI', 'Product Design', '/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/beta_bulky_demo_1766762978494.png')">
+            <img src="/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/beta_bulky_demo_1766762978494.png" alt="Product" class="grid-img">
+            <div class="grid-overlay">
+                <div class="grid-category">Product Design</div>
+                <h3>TaskFlow AI</h3>
+            </div>
+        </div>
+
+        <!-- Item 6: Data Viz (Alpha Analytics) -->
+        <div class="grid-item" onclick="openModal('Global Data', 'Visualization', '/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/alpha_analytics_1766761878245.png')">
+            <img src="/home/habeeb_abd/.gemini/antigravity/brain/ef54201b-53d9-4e9c-bc78-df5fb67d8c1c/alpha_analytics_1766761878245.png" alt="Data Viz" class="grid-img">
+            <div class="grid-overlay">
+                <div class="grid-category">Visualization</div>
+                <h3>Global Connect</h3>
+            </div>
+        </div>
+    </main>
+
+    <section class="about-section">
+        <div>
+            <h2 class="display-5 mb-4">The Studio.</h2>
+            <p class="text-secondary lead">Lumina is a digital design practice operating at the intersection of clarity and chaos. We build brands that define the future.</p>
+            <p class="text-secondary">Based in Zurich, working globally.</p>
+        </div>
+        <div>
+            <ul class="list-unstyled service-list">
+                <li>Art Direction <span>01</span></li>
+                <li>Digital Product <span>02</span></li>
+                <li>Brand Identity <span>03</span></li>
+                <li>WebGL & 3D <span>04</span></li>
+                <li>Motion Design <span>05</span></li>
+            </ul>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <a href="mailto:hello@lumina.design" class="footer-cta">Let's Create.</a>
+        <div class="d-flex justify-content-center gap-4 text-secondary">
+            <a href="#">Instagram</a>
+            <a href="#">Twitter</a>
+            <a href="#">LinkedIn</a>
+        </div>
+        <div class="mt-5 text-muted small">© 2025 Lumina Studio.</div>
+    </footer>
+
+    <!-- Project Modal -->
+    <div class="modal fade" id="projectModal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header border-bottom-0">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 d-flex flex-column flex-md-row">
+                    <div class="p-5 d-flex flex-column justify-content-center" style="flex:1; border-right:1px solid #333">
+                        <span class="text-info text-uppercase mb-2" id="modalCategory">Category</span>
+                        <h2 class="display-3 fw-bold mb-4" id="modalTitle">Project Title</h2>
+                        <p class="lead text-secondary">A comprehensive exploration of form, function, and future aesthetics. This project challenges conventional design patterns to deliver a unique user experience.</p>
+                        <div class="mt-5">
+                            <h6 class="text-white">Client</h6>
+                            <p class="text-secondary"> Confidential / Internal</p>
+                            <h6 class="text-white mt-4">Year</h6>
+                            <p class="text-secondary">2025</p>
+                        </div>
+                    </div>
+                    <div style="flex:1.5; background:#000; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                        <img src="" id="modalImg" style="width:100%; height:100%; object-fit:cover; opacity:0.8">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function openModal(title, category, imgSrc) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalCategory').innerText = category;
+            document.getElementById('modalImg').src = imgSrc;
+            
+            var myModal = new bootstrap.Modal(document.getElementById('projectModal'));
+            myModal.show();
+        }
+    </script>
+</body>
+</html>

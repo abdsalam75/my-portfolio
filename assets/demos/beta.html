@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Beta - TaskFlow AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        body { 
+            background: #050510; 
+            overflow: hidden; /* App-like feel */
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 80px;
+            background: rgba(255,255,255,0.02);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 0;
+            z-index: 10;
+        }
+        .app-logo { font-size: 1.5rem; color: var(--accent-purple); margin-bottom: 40px; }
+        .nav-icon { 
+            width: 45px; height: 45px; 
+            border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; 
+            color: #888; 
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            transition: 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .nav-icon:hover, .nav-icon.active {
+            background: rgba(188, 19, 254, 0.15);
+            color: var(--accent-purple);
+        }
+
+        /* Main Workspace */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(circle at top left, rgba(188,19,254,0.05), transparent 40%);
+            position: relative;
+        }
+        
+        .view-section {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .view-section.active { display: flex; animation: fadeEffect 0.3s; }
+        
+        @keyframes fadeEffect { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Header */
+        .app-header {
+            height: 70px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            flex-shrink: 0;
+        }
+        .search-bar {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            width: 300px;
+            font-size: 0.9rem;
+        }
+        .search-bar:focus { outline: none; border-color: var(--accent-purple); }
+
+        /* Board Area */
+        .board-container {
+            flex: 1;
+            padding: 30px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            gap: 25px;
+        }
+        
+        /* Kanban Columns */
+        .kanban-col {
+            min-width: 320px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }
+        .col-title { font-weight: 600; color: #fff; letter-spacing: 0.5px; }
+        .task-count { background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; color: #aaa; }
+        .task-list { flex: 1; overflow-y: auto; padding-right: 5px; }
+        
+        /* Task Card */
+        .task-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .task-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1); }
+        .task-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+        .priority-high::before { background: #ff5f56; }
+        .priority-med::before { background: #ffbd2e; }
+        .priority-low::before { background: #27c93f; }
+        .priority-ai::before { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+        .tags { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+        .tag-dev { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .tag-design { background: rgba(188, 19, 254, 0.2); color: var(--accent-purple); }
+        .tag-ai { background: rgba(0, 243, 255, 0.15); color: var(--accent-cyan); border: 1px solid rgba(0, 243, 255, 0.3); }
+        .task-title { font-size: 0.95rem; color: white; margin-bottom: 8px; font-weight: 500; line-height: 1.4; }
+        .task-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .avatars { display: flex; }
+        .avatar { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #1a1a2e; margin-left: -8px; background-size: cover; position: relative; }
+        .avatar:first-child { margin-left: 0; }
+        .ai-badge { font-size: 0.7rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 4px; background: rgba(0, 243, 255, 0.05); padding: 2px 6px; border-radius: 4px; }
+
+        /* CALENDAR VIEW STYLE */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 30px; height: 100%; overflow-y: auto; }
+        .cal-day-header { text-align: center; color: var(--accent-purple); font-weight: 600; padding-bottom: 10px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .cal-cell { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; min-height: 120px; padding: 10px; 
+            transition: 0.2s; position: relative;
+        }
+        .cal-cell:hover { background: rgba(255,255,255,0.06); }
+        .cal-date { font-size: 0.9rem; color: #fff; margin-bottom: 8px; font-weight: bold; }
+        .cal-event { 
+            font-size: 0.75rem; padding: 4px 6px; margin-bottom: 4px; border-radius: 4px; color: white; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+        .event-purple { background: rgba(188, 19, 254, 0.3); border-left: 2px solid var(--accent-purple); }
+        .event-cyan { background: rgba(0, 243, 255, 0.2); border-left: 2px solid var(--accent-cyan); color: var(--accent-cyan); }
+        .cal-cell.today { border: 1px solid var(--accent-cyan); background: rgba(0, 243, 255, 0.02); }
+
+        /* TEAM VIEW STYLE */
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 30px; overflow-y: auto; }
+        .member-card { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; text-align: center;
+            transition: 0.2s;
+        }
+        .member-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.06); border-color: var(--accent-purple); }
+        .member-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; background-size: cover; border: 3px solid rgba(255,255,255,0.1); position: relative; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #050510; position: absolute; bottom: 2px; right: 2px; }
+        .bg-online { background: #27c93f; }
+        .bg-busy { background: #ff5f56; }
+        .member-role { font-size: 0.8rem; color: var(--accent-cyan); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ANALYTICS VIEW STYLE */
+        .charts-container { padding: 30px; overflow-y: auto; height: 100%; }
+        
+        /* SETTINGS VIEW STYLE */
+        .settings-container { padding: 30px; max-width: 800px; margin: 0 auto; overflow-y: auto; height: 100%; }
+        .settings-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+        .form-label { color: #ccc; font-size: 0.9rem; margin-bottom: 8px; }
+        .form-control-dark { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 15px; border-radius: 6px; }
+        .form-control-dark:focus { background: rgba(0,0,0,0.4); border-color: var(--accent-purple); color: white; box-shadow: none; }
+
+        /* Right Panel (AI Assistant) */
+        .ai-sidebar {
+            width: 300px;
+            background: rgba(5, 5, 16, 0.95);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+        }
+        .ai-card {
+            background: linear-gradient(180deg, rgba(188, 19, 254, 0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(188, 19, 254, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .ai-card h6 { font-size: 0.85rem; color: var(--accent-purple); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .ai-msg { font-size: 0.85rem; color: #ccc; line-height: 1.5; }
+        .chat-input-area { margin-top: auto; }
+        .chat-input { width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; font-size: 0.9rem; }
+
+        /* Responsive */
+        @media(max-width: 1200px) { .ai-sidebar { display: none; } }
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<a href="../../index.html" style="position:fixed; bottom:20px; right:20px; z-index:999; width:40px; height:40px; background:var(--accent-cyan); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; box-shadow:0 0 20px rgba(0,243,255,0.4); text-decoration:none;"><i class="bi bi-arrow-left"></i></a>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="app-logo"><i class="bi bi-cpu-fill"></i></div>
+    <div class="nav-icon active" onclick="switchView('kanban')" id="nav-kanban"><i class="bi bi-kanban"></i></div>
+    <div class="nav-icon" onclick="switchView('list')" id="nav-list"><i class="bi bi-list-task"></i></div>
+    <div class="nav-icon" onclick="switchView('calendar')" id="nav-calendar"><i class="bi bi-calendar4-week"></i></div>
+    <div class="nav-icon" onclick="switchView('team')" id="nav-team"><i class="bi bi-people"></i></div>
+    <div class="nav-icon" onclick="switchView('analytics')" id="nav-analytics"><i class="bi bi-graph-up"></i></div>
+    <div style="flex:1"></div>
+    <div class="nav-icon" onclick="switchView('settings')" id="nav-settings"><i class="bi bi-gear"></i></div>
+</div>
+
+<!-- Main Workspace -->
+<div class="workspace">
+    
+    <!-- KANBAN VIEW -->
+    <div id="view-kanban" class="view-section active">
+        <header class="app-header">
+            <h4 class="mb-0 text-white">Product Roadmap <span class="badge bg-secondary ms-2" style="font-size:0.6rem; vertical-align:middle">Q4 2025</span></h4>
+            <div class="d-flex align-items-center gap-3">
+                <input type="text" class="search-bar" placeholder="Search tasks...">
+                <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/85.jpg'); width:35px; height:35px; border-color:var(--accent-purple)"></div>
+            </div>
+        </header>
+        <div class="board-container">
+            <!-- Reuse Kanban Columns Code -->
+            <div class="kanban-col">
+                <div class="col-header"><span class="col-title text-secondary">BACKLOG</span><span class="task-count">5</span></div>
+                <div class="task-list">
+                    <div class="task-card priority-low">
+                        <div class="tags"><span class="tag tag-dev">Research</span></div>
+                        <div class="task-title">Competitor AI Analysis Q1</div>
+                        <div class="task-footer"><div class="avatars"><div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/32.jpg')"></div></div><span class="text-secondary small">Dec 12</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="kanban-col">
+                <div class="col-header"><span class="col-title text-warning">TO DO</span><span class="task-count">4</span></div>
+                <div class="task-list">
+                    <div class="task-card priority-high">
+                         <div class="tags"><span class="tag tag-design">Critical</span></div>
+                         <div class="task-title">Fix Mobile Navigation Z-Index Issue</div>
+                         <div class="task-footer"><span class="text-danger small">High Priority</span></div>
+                    </div>
+                     <div class="task-card priority-ai">
+                         <div class="tags"><span class="tag tag-ai">Suggestion</span></div>
+                        <div class="task-title">Refactor Auth Middleware</div>
+                        <div class="task-footer"><div class="ai-badge"><i class="bi bi-lightning-fill"></i> High Impact</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="kanban-col">
+                <div class="col-header"><span class="col-title" style="color:var(--accent-purple)">IN PROGRESS</span><span class="task-count">3</span></div>
+                <div class="task-list">
+                    <div class="task-card priority-high" style="border-color: rgba(188,19,254,0.3); background: rgba(188,19,254,0.05)">
+                         <div class="tags"><span class="tag tag-ai">AI Core</span></div>
+                        <div class="task-title">GPT-4 Context Window Integration</div>
+                        <div class="progress mt-2" style="height: 4px; background: rgba(255,255,255,0.1)"><div class="progress-bar bg-info" style="width: 65%"></div></div>
+                        <div class="task-footer"><span class="text-info small">65%</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="kanban-col">
+                <div class="col-header"><span class="col-title text-success">DONE</span><span class="task-count">12</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIST VIEW -->
+    <div id="view-list" class="view-section">
+        <header class="app-header"><h4 class="mb-0 text-white">Task List</h4></header>
+        <div class="p-4">
+            <div class="task-card d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-check-circle text-secondary"></i>
+                    <span class="text-white">Update API Documentation</span>
+                </div>
+                <span class="badge bg-secondary">Backlog</span>
+            </div>
+            <div class="task-card d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-circle text-warning"></i>
+                    <span class="text-white">Stripe Payment Gateway V2</span>
+                </div>
+                <span class="badge bg-warning text-dark">To Do</span>
+            </div>
+            <div class="task-card d-flex align-items-center justify-content-between" style="border-left: 3px solid var(--accent-purple)">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-play-circle text-info"></i>
+                    <span class="text-white">GPT-4 Context Window Integration</span>
+                </div>
+                <span class="badge bg-info text-dark">In Progress</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CALENDAR VIEW -->
+    <!-- CALENDAR VIEW -->
+    <div id="view-calendar" class="view-section">
+        <header class="app-header">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm btn-outline-secondary text-white" onclick="prevMonth()"><i class="bi bi-chevron-left"></i></button>
+                <h4 class="mb-0 text-white" id="current-month-display">Calendar</h4>
+                <button class="btn btn-sm btn-outline-secondary text-white" onclick="nextMonth()"><i class="bi bi-chevron-right"></i></button>
+            </div>
+            <button class="btn btn-custom btn-sm" onclick="openAddEventModal()"><i class="bi bi-plus-lg"></i> Add Event</button>
+        </header>
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- JS will populate this -->
+        </div>
+    </div>
+
+    <!-- TEAM VIEW -->
+    <div id="view-team" class="view-section">
+        <header class="app-header"><h4 class="mb-0 text-white">Engineering Team</h4></header>
+        <div class="team-grid">
+            <div class="member-card">
+                <div class="member-avatar" style="background-image: url('https://randomuser.me/api/portraits/men/85.jpg')"><div class="status-dot bg-online"></div></div>
+                <h5 class="text-white mb-1">Alex Morgan</h5>
+                <div class="member-role">Lead Architect</div>
+                <p class="text-secondary small">Working on: <span class="text-white">AI Core Integration</span></p>
+                <button class="btn btn-sm btn-outline-custom mt-2">View Profile</button>
+            </div>
+            <div class="member-card">
+                <div class="member-avatar" style="background-image: url('https://randomuser.me/api/portraits/women/44.jpg')"><div class="status-dot bg-busy"></div></div>
+                <h5 class="text-white mb-1">Sarah Jenkins</h5>
+                <div class="member-role">UI/UX Designer</div>
+                <p class="text-secondary small">Working on: <span class="text-white">Mobile Navigation</span></p>
+                <button class="btn btn-sm btn-outline-custom mt-2">View Profile</button>
+            </div>
+            <div class="member-card">
+                <div class="member-avatar" style="background-image: url('https://randomuser.me/api/portraits/men/32.jpg')"><div class="status-dot bg-online"></div></div>
+                <h5 class="text-white mb-1">David Chen</h5>
+                <div class="member-role">Backend Engineer</div>
+                <p class="text-secondary small">Working on: <span class="text-white">API Optimization</span></p>
+                <button class="btn btn-sm btn-outline-custom mt-2">View Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANALYTICS VIEW -->
+    <div id="view-analytics" class="view-section">
+        <header class="app-header"><h4 class="mb-0 text-white">Productivity Analytics</h4></header>
+        <div class="charts-container">
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="settings-card">
+                        <h5 class="text-white mb-4">Sprint Velocity</h5>
+                         <!-- CSS Bar Chart -->
+                        <div class="d-flex align-items-end gap-3" style="height: 200px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+                            <div style="width:40px; height:60%; background:var(--accent-purple); border-radius:4px 4px 0 0"></div>
+                            <div style="width:40px; height:80%; background:var(--accent-purple); border-radius:4px 4px 0 0"></div>
+                            <div style="width:40px; height:45%; background:var(--accent-purple); opacity:0.5; border-radius:4px 4px 0 0"></div>
+                            <div style="width:40px; height:90%; background:var(--accent-cyan); border-radius:4px 4px 0 0"></div>
+                            <div style="width:40px; height:75%; background:var(--accent-purple); border-radius:4px 4px 0 0"></div>
+                        </div>
+                        <div class="d-flex gap-4 mt-2 text-secondary small">
+                            <span style="width:40px; text-align:center">Spr 1</span>
+                            <span style="width:40px; text-align:center">Spr 2</span>
+                            <span style="width:40px; text-align:center">Spr 3</span>
+                            <span style="width:40px; text-align:center">Curr</span>
+                            <span style="width:40px; text-align:center">Proj</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                     <div class="settings-card">
+                        <h5 class="text-white mb-4">Task Distribution</h5>
+                        <div class="d-flex align-items-center justify-content-between mb-3"><span class="text-secondary">Development</span> <span class="text-white">45%</span></div>
+                        <div class="progress mb-3" style="height:6px"><div class="progress-bar" style="width:45%; background: #3b82f6"></div></div>
+                        
+                        <div class="d-flex align-items-center justify-content-between mb-3"><span class="text-secondary">Design</span> <span class="text-white">30%</span></div>
+                         <div class="progress mb-3" style="height:6px"><div class="progress-bar" style="width:30%; background: var(--accent-purple)"></div></div>
+                        
+                        <div class="d-flex align-items-center justify-content-between mb-3"><span class="text-secondary">AI Ops</span> <span class="text-white">25%</span></div>
+                         <div class="progress mb-3" style="height:6px"><div class="progress-bar" style="width:25%; background: var(--accent-cyan)"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS VIEW -->
+    <div id="view-settings" class="view-section">
+        <header class="app-header"><h4 class="mb-0 text-white">App Settings</h4></header>
+        <div class="settings-container">
+             <div class="settings-card">
+                 <h5 class="text-white mb-4">Profile Settings</h5>
+                 <div class="mb-3">
+                     <label class="form-label">Display Name</label>
+                     <input type="text" class="form-control-dark w-100" value="Habeeb Architect">
+                 </div>
+                 <div class="mb-3">
+                     <label class="form-label">Email Preferences</label>
+                     <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" checked>
+                        <label class="form-check-label text-white">Daily Digest</label>
+                    </div>
+                 </div>
+             </div>
+             <div class="settings-card">
+                 <h5 class="text-white mb-4">AI Configuration</h5>
+                 <div class="mb-3">
+                     <label class="form-label">Model Sensitivity</label>
+                     <input type="range" class="form-range" min="0" max="100">
+                     <div class="d-flex justify-content-between text-secondary small"><span>Conservative</span><span>Creative</span></div>
+                 </div>
+                 <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                    <label class="form-check-label text-white">Auto-Prioritize Tasks</label>
+                </div>
+             </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- AI Right Sidebar -->
+<div class="ai-sidebar">
+    <h5 class="text-white mb-4"><i class="bi bi-robot"></i> AI Assistant</h5>
+    
+    <div class="ai-card">
+        <h6><i class="bi bi-stars"></i> Sprint Analysis</h6>
+        <p class="ai-msg">Team velocity is <strong>12% higher</strong> than last sprint. Predicted completion for "Q4 Roadmap" is <strong>3 days early</strong>.</p>
+    </div>
+
+    <div class="ai-card">
+        <h6><i class="bi bi-exclamation-triangle"></i> Bottleneck Alert</h6>
+        <p class="ai-msg"><strong>Sarah Jenkins</strong> has 5 active high-priority tasks. Consider reassigning "Dashboard Tweaks" to <strong>Mike</strong>.</p>
+        <button class="btn btn-sm btn-outline-custom w-100 mt-2">Auto-Reassign</button>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" class="chat-input" placeholder="Ask AI about project status...">
+    </div>
+</div>
+
+<script>
+    function switchView(viewName) {
+        // HIDE ALL SECTIONS
+        const sections = document.querySelectorAll('.view-section');
+        sections.forEach(sec => sec.classList.remove('active'));
+        
+        // SHOW TARGET SECTION
+        const target = document.getElementById('view-' + viewName);
+        if(target) target.classList.add('active');
+        
+        // UPDATE SIDEBAR ICON STATE
+        document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+        const activeNav = document.getElementById('nav-' + viewName);
+        if(activeNav) activeNav.classList.add('active');
+        
+        if (viewName === 'calendar') renderCalendar();
+    }
+
+    /* ---- CALENDAR LOGIC ---- */
+    const date = new Date(); // Tracks current browse state
+    let events = [
+        { day: 1, month: 9, year: 2025, title: "Sprint Planning", type: "event-purple" },
+        { day: 3, month: 9, year: 2025, title: "Code Freeze", type: "event-cyan" },
+        { day: 9, month: 9, year: 2025, title: "Demo Day", type: "event-purple" },
+        { day: 9, month: 9, year: 2025, title: "Client Call", type: "event-cyan" }
+    ]; // Starting dummy events (Oct 2025 is month 9)
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendar-grid');
+        const monthDisplay = document.getElementById('current-month-display');
+        
+        grid.innerHTML = `
+            <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div><div class="cal-day-header">Tue</div>
+            <div class="cal-day-header">Wed</div><div class="cal-day-header">Thu</div><div class="cal-day-header">Fri</div>
+            <div class="cal-day-header">Sat</div>
+        `;
+        
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        
+        // Update Title
+        const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        monthDisplay.innerText = `${monthNames[month]} ${year}`;
+        
+        // Logic
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const prevLastDay = new Date(year, month, 0).getDate();
+        
+        // Prev Month Cells
+        for(let x = firstDay; x > 0; x--) {
+            grid.innerHTML += `<div class="cal-cell"><div class="cal-date text-secondary">${prevLastDay - x + 1}</div></div>`;
+        }
+        
+        // Current Month Cells
+        for(let i = 1; i <= daysInMonth; i++) {
+            let eventHtml = '';
+            events.forEach(ev => {
+                if(ev.day === i && ev.month === month && ev.year === year) {
+                    eventHtml += `<div class="cal-event ${ev.type}">${ev.title}</div>`;
+                }
+            });
+            
+            // Check Today
+            let isToday = i === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+            let classes = isToday ? 'cal-cell today' : 'cal-cell';
+            
+            grid.innerHTML += `
+                <div class="${classes}" onclick="openAddEventModal(${i})">
+                    <div class="cal-date">${i}</div>
+                    ${eventHtml}
+                </div>
+            `;
+        }
+    }
+    
+    function prevMonth() {
+        date.setMonth(date.getMonth() - 1);
+        renderCalendar();
+    }
+    
+    function nextMonth() {
+        date.setMonth(date.getMonth() + 1);
+        renderCalendar();
+    }
+
+    /* ---- MODAL LOGIC ---- */
+    let selectedDay = 0;
+    
+    function openAddEventModal(day) {
+        if(day) selectedDay = day;
+        else selectedDay = new Date().getDate(); // default
+        
+        document.getElementById('event-modal').style.display = 'flex';
+        document.getElementById('modal-title').innerText = `Add Event for ${date.toLocaleString('default', { month: 'long' })} ${selectedDay}`;
+    }
+    
+    function closeEventModal() {
+        document.getElementById('event-modal').style.display = 'none';
+        document.getElementById('event-input').value = '';
+    }
+    
+    function saveEvent() {
+        const title = document.getElementById('event-input').value;
+        const type = document.getElementById('event-type').value;
+        
+        if(title) {
+            events.push({
+                day: selectedDay,
+                month: date.getMonth(),
+                year: date.getFullYear(),
+                title: title,
+                type: type
+            });
+            renderCalendar();
+            closeEventModal();
+        }
+    }
+    
+    // Init with Oct 2025 for demo purposes if desired, or just current date
+    // Let's set it to Oct 2025 to match the original static demo vibe
+    date.setFullYear(2025, 9, 1);
+</script>
+
+<!-- Event Modal -->
+<div id="event-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
+    <div style="background:#1a1a2e; padding:30px; border-radius:12px; width:400px; border:1px solid var(--accent-purple);">
+        <h5 class="text-white mb-3" id="modal-title">Add Event</h5>
+        <div class="mb-3">
+            <input type="text" id="event-input" class="form-control-dark w-100" placeholder="Event Title (e.g. Team Meeting)">
+        </div>
+        <div class="mb-3">
+            <select id="event-type" class="form-control-dark w-100">
+                <option value="event-purple">Purple (Strategic)</option>
+                <option value="event-cyan">Cyan (Technical)</option>
+            </select>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-sm btn-outline-secondary" onclick="closeEventModal()">Cancel</button>
+            <button class="btn btn-sm btn-custom" onclick="saveEvent()">Save Event</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
