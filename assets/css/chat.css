@@ -167,7 +167,7 @@
 }
 
 /* Mobile Responsive Chat */
-@media (max-width: 480px) {
+@media (max-width: 768px) {  /* Extended from 480px for better tablet coverage */
     .chat-window {
         position: fixed; /* Force fixed to viewport */
         width: 100%;
@@ -194,12 +194,15 @@
         right: 20px !important;
         font-size: 2rem;
         padding: 0;
-        width: 44px;
-        height: 44px;
+        width: 44px !important;  /* Enforce minimum touch target */
+        height: 44px !important;
+        min-width: 44px !important;  /* Prevent any shrinking */
+        min-height: 44px !important;
         display: flex !important;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 77, 77, 0.2) !important;  /* More visible red background */
+        border: 2px solid #ff5f56 !important;  /* Red border for emphasis */
         border-radius: 50%;
         color: #ff5f56 !important; /* Force Red */
         z-index: 2000001 !important; /* Above chat window */
@@ -211,3 +214,4 @@
         padding-right: 60px; /* Space for close button */
     }
 }
+

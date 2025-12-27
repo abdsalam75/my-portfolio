@@ -59,6 +59,27 @@
         body.light-mode .form-control-dark:focus { background: #fff; border-color: var(--accent-purple); color: #333; }
         
         /* Responsive Design */
+        @media(max-width: 400px) {
+            /* Extra Small Mobile - Fix cramped layout */
+            .row.g-4 > [class*='col-'] {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+            }
+            
+            .dashboard-header h2 {
+                font-size: 1.5rem !important;
+            }
+            
+            .dashboard-actions .btn {
+                padding: 6px 12px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .metric-card h3 {
+                font-size: 1.75rem;
+            }
+        }
+        
         @media(max-width: 576px) {
             /* Small Mobile */
             .search-bar { width: 100%; margin-bottom: 10px; }
