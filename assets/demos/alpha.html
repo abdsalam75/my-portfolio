@@ -58,12 +58,74 @@
         body.light-mode .form-control-dark { background: #fff; border: 1px solid #ccc; color: #333; }
         body.light-mode .form-control-dark:focus { background: #fff; border-color: var(--accent-purple); color: #333; }
         
+        /* Responsive Design */
+        @media(max-width: 576px) {
+            /* Small Mobile */
+            .search-bar { width: 100%; margin-bottom: 10px; }
+            .app-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .metric-card h3 { font-size: 1.5rem; }
+            .metric-card p { font-size: 0.85rem; }
+            .chart-placeholder { height: 200px; }
+            .back-btn { bottom: 15px; right: 15px; padding: 10px 20px; font-size: 0.9rem; }
+        }
+        
         @media(max-width: 768px) {
+            /* Mobile & Small Tablets */
             .dashboard-container { flex-direction: column; }
-            .sidebar { position: static; width: 100%; height: auto; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 10px; }
+            .sidebar { 
+                position: static; 
+                width: 100%; 
+                height: auto; 
+                flex-direction: row; 
+                overflow-x: auto; 
+                border-right: none; 
+                border-bottom: 1px solid rgba(255,255,255,0.05); 
+                padding: 10px;
+                justify-content: flex-start;
+                gap: 5px;
+            }
             .content { margin-left: 0; padding: 20px; }
+            .nav-link-demo { 
+                min-width: 50px;
+                padding: 10px;
+                justify-content: center;
+            }
             .nav-link-demo span { display: none; }
-            .nav-link-demo i { font-size: 1.5rem; margin: 0; }
+            .nav-link-demo i { font-size: 1.3rem; margin: 0; }
+            
+            /* Stack buttons vertically */
+            .app-header .d-flex.gap-2 { 
+                flex-direction: column; 
+                width: 100%;
+                gap: 8px !important;
+            }
+            .app-header .d-flex.gap-2 button {
+                width: 100%;
+            }
+            
+            /* Make tables scrollable */
+            .table-responsive { 
+                overflow-x: auto; 
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Adjust search and filter controls */
+            .form-control-dark { width: 100% !important; margin-bottom: 10px; }
+            .btn-group { width: 100%; }
+            .btn-group button { flex: 1; }
+        }
+        
+        @media(min-width: 769px) and (max-width: 1024px) {
+            /* Tablets */
+            .sidebar { width: 200px; padding: 15px; }
+            .content { margin-left: 200px; padding: 30px; }
+            .nav-link-demo { font-size: 0.85rem; padding: 10px 12px; }
+            .search-bar { width: 250px; }
+        }
+        
+        @media(max-width: 992px) {
+            /* Adjust metric cards for medium screens */
+            .col-md-3 { flex: 0 0 50%; max-width: 50%; }
         }
     </style>
 </head>
@@ -94,28 +156,28 @@
             </div>
 
             <div class="row g-4 mb-4">
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="metric-card">
                         <p class="text-secondary mb-1">Total Revenue</p>
                         <h3 class="text-white">$128,400</h3>
                         <small class="text-success"><i class="bi bi-arrow-up-short"></i> 12.5% vs last month</small>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="metric-card">
                         <p class="text-secondary mb-1">Active Users</p>
                         <h3 class="text-white">12,390</h3>
                         <small class="text-success"><i class="bi bi-arrow-up-short"></i> 8.2% vs last month</small>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="metric-card">
                         <p class="text-secondary mb-1">Bounce Rate</p>
                         <h3 class="text-white">42.3%</h3>
                         <small class="text-danger"><i class="bi bi-arrow-down-short"></i> 1.2% vs last month</small>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="metric-card">
                         <p class="text-secondary mb-1">Active Now</p>
                         <h3 class="text-white">574</h3>

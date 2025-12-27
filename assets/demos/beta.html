@@ -197,8 +197,170 @@
         .chat-input-area { margin-top: auto; }
         .chat-input { width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; font-size: 0.9rem; }
 
-        /* Responsive */
-        @media(max-width: 1200px) { .ai-sidebar { display: none; } }
+        /* Responsive Design */
+        @media(max-width: 576px) {
+            /* Small Mobile */
+            body { overflow-x: hidden; }
+            
+            .search-bar { width: 100%; font-size: 0.85rem; }
+            .app-header { padding: 0 15px; height: auto; min-height: 60px; flex-wrap: wrap; }
+            .app-header h4 { font-size: 1rem; }
+            
+            /* Kanban adjustments */
+            .board-container { padding: 15px; }
+            .kanban-col { min-width: 280px; width: 280px; }
+            .task-card { padding: 12px; }
+            .task-title { font-size: 0.9rem; }
+            
+            /* Calendar adjustments */
+            .calendar-grid { padding: 15px; gap: 5px; grid-template-columns: repeat(7, 1fr); }
+            .cal-cell { min-height: 80px; padding: 5px; }
+            .cal-date { font-size: 0.8rem; }
+            .cal-event { font-size: 0.65rem; padding: 2px 4px; }
+            .cal-day-header { font-size: 0.7rem; padding-bottom: 5px; }
+            
+            /* Team grid */
+            .team-grid { grid-template-columns: 1fr; padding: 15px; }
+            
+            /* Charts */
+            .charts-container { padding: 15px; }
+            
+            /* Settings */
+            .settings-container { padding: 15px; }
+        }
+        
+        @media(max-width: 768px) {
+            /* Mobile & Small Tablets */
+            .sidebar { 
+                width: 60px; 
+                padding: 20px 0;
+            }
+            .app-logo { font-size: 1.2rem; margin-bottom: 30px; }
+            .nav-icon { 
+                width: 40px; 
+                height: 40px; 
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+            
+            /* Header adjustments */
+            .app-header { 
+                padding: 0 20px; 
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .search-bar { 
+                width: 100%; 
+                order: 3;
+            }
+            
+            /* Kanban board - enable horizontal scroll */
+            .board-container { 
+                padding: 20px;
+                gap: 15px;
+            }
+            .kanban-col { 
+                min-width: 300px; 
+                width: 300px;
+            }
+            
+            /* Calendar - maintain 7 columns but smaller */
+            .calendar-grid { 
+                gap: 8px; 
+                padding: 20px;
+            }
+            .cal-cell { 
+                min-height: 90px; 
+                padding: 8px;
+            }
+            
+            /* Team grid - 1 column on mobile */
+            .team-grid { 
+                grid-template-columns: 1fr; 
+                padding: 20px;
+            }
+            
+            /* Analytics charts */
+            .charts-container .row { 
+                flex-direction: column; 
+            }
+            .charts-container .col-md-8,
+            .charts-container .col-md-4 { 
+                max-width: 100%; 
+            }
+            
+            /* Settings */
+            .settings-container { 
+                padding: 20px; 
+            }
+            .settings-container .row { 
+                flex-direction: column; 
+            }
+            .settings-container .col-md-6 { 
+                max-width: 100%; 
+            }
+            
+            /* Modal improvements */
+            #event-modal > div { 
+                width: 90%; 
+                margin: 20px;
+            }
+            
+            /* AI Sidebar - hide on mobile */
+            .ai-sidebar { 
+                display: none; 
+            }
+        }
+        
+        @media(min-width: 769px) and (max-width: 1024px) {
+            /* Tablets */
+            .sidebar { width: 70px; }
+            
+            .kanban-col { 
+                min-width: 280px; 
+                width: 280px;
+            }
+            
+            .team-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+            
+            .ai-sidebar { 
+                width: 250px; 
+                padding: 20px;
+            }
+        }
+        
+        @media(max-width: 1200px) { 
+            .ai-sidebar { display: none; } 
+        }
+        
+        @media(min-width: 1025px) and (max-width: 1400px) {
+            /* Medium Desktop */
+            .kanban-col { 
+                min-width: 300px; 
+                width: 300px;
+            }
+            
+            .team-grid { 
+                grid-template-columns: repeat(3, 1fr); 
+            }
+        }
+        
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-icon { 
+                min-width: 44px; 
+                min-height: 44px; 
+            }
+            .task-card { 
+                cursor: pointer; 
+            }
+            .cal-cell { 
+                cursor: pointer; 
+            }
+        }
+        
         /* Scrollbars */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }

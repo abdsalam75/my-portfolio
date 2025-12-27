@@ -46,6 +46,20 @@
         .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -1px; }
         .nav-link { margin-left: 30px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--secondary-color); }
         .nav-link:hover { color: white; }
+        
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .mobile-nav {
+            display: flex;
+        }
 
         /* Hero */
         .hero-section {
@@ -123,6 +137,76 @@
             justify-content: space-between;
         }
         .service-list li span { color: var(--secondary-color); font-size: 0.9rem; }
+        
+        /* Responsive Design */
+        @media(max-width: 576px) {
+            /* Small Mobile */
+            .header { padding: 20px 5%; }
+            .logo { font-size: 1.2rem; }
+            
+            .hero-section { padding: 120px 5% 60px; }
+            .hero-title { font-size: 15vw; letter-spacing: -2px; }
+            .hero-subtitle { font-size: 1rem; margin-top: 20px; }
+            
+            .about-section { padding: 60px 5%; gap: 30px; }
+            .service-list li { font-size: 1rem; padding: 12px 0; }
+            
+            .footer { padding: 60px 5%; }
+            .footer-cta { font-size: 8vw; }
+        }
+        
+        @media(max-width: 768px) {
+            /* Mobile & Small Tablets */
+            .mobile-menu-toggle { display: block; }
+            .mobile-nav { 
+                display: none;
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 250px;
+                background: rgba(5,5,16,0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 80px 30px 30px;
+                border-left: 1px solid rgba(255,255,255,0.1);
+                z-index: 99;
+            }
+            .mobile-nav.active { display: flex; }
+            .nav-link { margin-left: 0; margin-bottom: 20px; display: block; }
+            
+            .hero-title { font-size: 12vw; }
+            .hero-subtitle { font-size: 1.1rem; }
+            
+            .masonry-grid { column-count: 1; padding: 5%; }
+            
+            .about-section { 
+                grid-template-columns: 1fr; 
+                gap: 40px;
+                padding: 80px 5%;
+            }
+            
+            .footer-cta { font-size: 7vw; }
+            
+            /* Modal adjustments */
+            .modal-body { flex-direction: column !important; }
+            .modal-body > div { 
+                border-right: none !important; 
+                border-bottom: 1px solid #333;
+            }
+            .modal-body > div:last-child { border-bottom: none; }
+        }
+        
+        @media(min-width: 769px) and (max-width: 1024px) {
+            /* Tablets */
+            .hero-title { font-size: 11vw; }
+            .masonry-grid { column-count: 2; }
+        }
+        
+        @media(min-width: 1025px) {
+            /* Desktop */
+            .hero-title { font-size: 10vw; max-width: 100%; }
+        }
 
         /* Footer */
         .footer {
@@ -142,7 +226,10 @@
 
     <nav class="header">
         <div class="logo">LUMINA.</div>
-        <div class="d-none d-md-flex">
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="mobile-nav" id="mobileNav">
             <a href="#" class="nav-link">Work</a>
             <a href="#" class="nav-link">Studio</a>
             <a href="#" class="nav-link">Services</a>
@@ -267,6 +354,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('active');
+        }
+        
         function openModal(title, category, imgSrc) {
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalCategory').innerText = category;
