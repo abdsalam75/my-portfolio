@@ -189,19 +189,25 @@
     
     /* Make Close Button Prominent on Mobile */
     #close-chat {
-        position: absolute; /* Float above everything */
-        top: 20px;
-        right: 20px;
+        position: fixed !important; /* Fixed to viewport, not parent */
+        top: 20px !important;
+        right: 20px !important;
         font-size: 2rem;
         padding: 0;
         width: 44px;
         height: 44px;
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.1) !important;
         border-radius: 50%;
         color: #ff5f56 !important; /* Force Red */
-        z-index: 10002;
+        z-index: 2000001 !important; /* Above chat window */
+        cursor: pointer;
+    }
+    
+    /* Adjust chat header to account for fixed close button */
+    .chat-header {
+        padding-right: 60px; /* Space for close button */
     }
 }
