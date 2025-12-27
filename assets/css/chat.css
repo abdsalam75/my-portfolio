@@ -171,14 +171,16 @@
     .chat-window {
         position: fixed; /* Force fixed to viewport */
         width: 100%;
-        height: 100vh; /* Full viewport height */
+        height: 85vh; /* Reduced height for better visibility of background */
+        max-height: calc(100vh - 100px); /* More space at top */
         bottom: 0;
         right: 0;
-        border-radius: 0;
+        top: auto;
+        border-radius: 20px 20px 0 0; /* Rounded top corners only */
         z-index: 2000000; /* Ensure it's on top of fixed navbar (z=1030) */
         display: flex;
         flex-direction: column;
-        padding-top: env(safe-area-inset-top); /* Handle Notch */
+        padding-top: 10px;
         background: #0d0d1a; /* Solid background for mobile to prevent see-through issues */
     }
 
@@ -190,7 +192,7 @@
     /* Make Close Button Prominent on Mobile */
     #close-chat {
         position: fixed !important; /* Fixed to viewport, not parent */
-        top: 20px !important;
+        top: 25px !important; /* Lowered slightly */
         right: 20px !important;
         font-size: 2rem;
         padding: 0;
@@ -214,4 +216,6 @@
         padding-right: 60px; /* Space for close button */
     }
 }
+
+
 
