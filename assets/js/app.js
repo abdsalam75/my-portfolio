@@ -48,4 +48,57 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // 4. Contact Form Handling
+    const contactForm = document.getElementById('contact-form');
+    const formMessage = document.getElementById('form-message');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            // Show loading state
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+            
+            // Get form data
+            const formData = new FormData(contactForm);
+            
+            try {
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Success message
+                    formMessage.className = 'mt-3 alert alert-success';
+                    formMessage.textContent = '✓ Message sent successfully! I\'ll get back to you soon.';
+                    formMessage.classList.remove('d-none');
+                    contactForm.reset();
+                } else {
+                    throw new Error(data.message || 'Something went wrong');
+                }
+            } catch (error) {
+                // Error message
+                formMessage.className = 'mt-3 alert alert-danger';
+                formMessage.textContent = '✗ Failed to send message. Please try again or email me directly at habeebtee83@gmail.com';
+                formMessage.classList.remove('d-none');
+            } finally {
+                // Restore button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    formMessage.classList.add('d-none');
+                }, 5000);
+            }
+        });
+    }
 });
